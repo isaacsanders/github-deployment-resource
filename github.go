@@ -68,9 +68,9 @@ func (g *GitHubClient) ListDeployments() ([]*github.Deployment, error) {
 	return deployments, nil
 }
 
-func (g *GitHubClient) GetDeployment(ID int64) (*github.Deployment, error) {
+func (g *GitHubClient) GetDeployment(ID int64, time.Duration timeout) (*github.Deployment, error) {
 	ctx := context.Background()
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
 	deployment, res, err := g.client.Repositories.GetDeployment(ctx, g.user, g.repository, ID)
@@ -104,9 +104,9 @@ func (g *GitHubClient) CreateDeployment(request *github.DeploymentRequest) (*git
 	return deployment, nil
 }
 
-func (g *GitHubClient) ListDeploymentStatuses(ID int64) ([]*github.DeploymentStatus, error) {
+func (g *GitHubClient) ListDeploymentStatuses(ID int64, time.Duration timeout) ([]*github.DeploymentStatus, error) {
 	ctx := context.Background()
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
 	statuses, res, err := g.client.Repositories.ListDeploymentStatuses(ctx, g.user, g.repository, ID, nil)
