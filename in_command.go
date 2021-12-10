@@ -24,6 +24,11 @@ func NewInCommand(github GitHub, writer io.Writer) *InCommand {
 }
 
 func (c *InCommand) Run(destDir string, request InRequest) (InResponse, error) {
+	timeout, err := time.ParseDuration(request.Params.Timeout)
+	if err != nil {
+		return InResponse{}, err
+	}
+
 	err := os.MkdirAll(destDir, 0755)
 	if err != nil {
 		return InResponse{}, err
@@ -31,7 +36,7 @@ func (c *InCommand) Run(destDir string, request InRequest) (InResponse, error) {
 
 	id, _ := strconv.ParseInt(request.Version.ID, 10, 64)
 	fmt.Fprintln(c.writer, "getting deployment")
-	deployment, err := c.github.GetDeployment(id)
+	deployment, err := c.github.GetDeployment(id, timeout)
 	if err != nil {
 		return InResponse{}, err
 	}
@@ -91,7 +96,7 @@ func (c *InCommand) Run(destDir string, request InRequest) (InResponse, error) {
 	}
 
 	fmt.Fprintln(c.writer, "getting deployment statuses list")
-	statuses, err := c.github.ListDeploymentStatuses(*deployment.ID)
+	statuses, err := c.github.ListDeploymentStatuses(*deployment.ID, timeout)
 	if err != nil {
 		return InResponse{}, err
 	}
