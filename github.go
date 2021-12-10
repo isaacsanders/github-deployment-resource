@@ -14,11 +14,11 @@ import (
 //go:generate counterfeiter -o fakes/fake_git_hub.go . GitHub
 
 type GitHub interface {
-	ListDeployments() ([]*github.Deployment, error)
-	ListDeploymentStatuses(ID int64) ([]*github.DeploymentStatus, error)
-	GetDeployment(ID int64) (*github.Deployment, error)
-	CreateDeployment(request *github.DeploymentRequest) (*github.Deployment, error)
-	CreateDeploymentStatus(ID int64, request *github.DeploymentStatusRequest) (*github.DeploymentStatus, error)
+	ListDeployments(time.Duration timeout) ([]*github.Deployment, error)
+	ListDeploymentStatuses(ID int64, time.Duration timeout) ([]*github.DeploymentStatus, error)
+	GetDeployment(ID int64, time.Duration timeout) (*github.Deployment, error)
+	CreateDeployment(request *github.DeploymentRequest, time.Duration timeout) (*github.Deployment, error)
+	CreateDeploymentStatus(ID int64, request *github.DeploymentStatusRequest, time.Duration timeout) (*github.DeploymentStatus, error)
 }
 
 type GitHubClient struct {
@@ -50,9 +50,9 @@ func NewGitHubClient(source Source) (*GitHubClient, error) {
 	}, nil
 }
 
-func (g *GitHubClient) ListDeployments() ([]*github.Deployment, error) {
+func (g *GitHubClient) ListDeployments(time.Duration timeout) ([]*github.Deployment, error) {
 	ctx := context.Background()
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
 	deployments, res, err := g.client.Repositories.ListDeployments(ctx, g.user, g.repository, nil)
@@ -86,9 +86,9 @@ func (g *GitHubClient) GetDeployment(ID int64, time.Duration timeout) (*github.D
 	return deployment, nil
 }
 
-func (g *GitHubClient) CreateDeployment(request *github.DeploymentRequest) (*github.Deployment, error) {
+func (g *GitHubClient) CreateDeployment(request *github.DeploymentRequest, time.Duration timeout) (*github.Deployment, error) {
 	ctx := context.Background()
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
 	deployment, res, err := g.client.Repositories.CreateDeployment(ctx, g.user, g.repository, request)
@@ -122,9 +122,9 @@ func (g *GitHubClient) ListDeploymentStatuses(ID int64, time.Duration timeout) (
 	return statuses, nil
 }
 
-func (g *GitHubClient) CreateDeploymentStatus(ID int64, request *github.DeploymentStatusRequest) (*github.DeploymentStatus, error) {
+func (g *GitHubClient) CreateDeploymentStatus(ID int64, request *github.DeploymentStatusRequest, time.Duration timeout) (*github.DeploymentStatus, error) {
 	ctx := context.Background()
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
 	status, res, err := g.client.Repositories.CreateDeploymentStatus(ctx, g.user, g.repository, ID, request)
